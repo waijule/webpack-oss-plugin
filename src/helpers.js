@@ -4,32 +4,24 @@ import readDir from 'recursive-readdir'
 
 export const UPLOAD_IGNORES = [
   '.DS_Store'
-]
+];
 
-export const DEFAULT_UPLOAD_OPTIONS = {
-  ACL: 'public-read'
-}
+export const REQUIRED_OSS_OPTS = ['region', 'accessKeyId', 'accessKeySecret', 'bucket'];
+export const PATH_SEP = path.sep;
+export const OSS_PATH_SEP = '/';
+export const DEFAULT_TRANSFORM = (item) => Promise.resolve(item);
 
-export const DEFAULT_S3_OPTIONS = {
-  region: 'us-west-2'
-}
-
-export const REQUIRED_S3_OPTS = ['accessKeyId', 'secretAccessKey']
-export const REQUIRED_S3_UP_OPTS = ['Bucket']
-export const PATH_SEP = path.sep
-export const S3_PATH_SEP = '/'
-export const DEFAULT_TRANSFORM = (item) => Promise.resolve(item)
-
-export const addTrailingS3Sep = fPath => {
+export const addTrailingOSSSep = fPath => {
   return fPath ? fPath.replace(/\/?(\?|#|$)/, '/$1') : fPath
-}
+};
 
 export const addSeperatorToPath = (fPath) => {
-  if (!fPath)
-    return fPath
+  if (!fPath) {
+    return fPath;
+  }
 
-  return _.endsWith(fPath, PATH_SEP) ? fPath : fPath + PATH_SEP
-}
+  return _.endsWith(fPath, PATH_SEP) ? fPath : fPath + PATH_SEP;
+};
 
 export const translatePathFromFiles = (rootPath) => {
   return files => {
@@ -39,15 +31,15 @@ export const translatePathFromFiles = (rootPath) => {
         name: file
           .replace(rootPath, '')
           .split(PATH_SEP)
-          .join(S3_PATH_SEP)
+          .join(OSS_PATH_SEP)
       }
     })
   }
-}
+};
 
 export const getDirectoryFilesRecursive = (dir, ignores = []) => {
   return new Promise((resolve, reject) => {
     readDir(dir, ignores, (err, files) => err ? reject(err) : resolve(files))
   })
     .then(translatePathFromFiles(dir))
-}
+};

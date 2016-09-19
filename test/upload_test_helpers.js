@@ -1,60 +1,60 @@
 import _ from 'lodash'
-import https from 'https'
+import http from 'http'
 import path from 'path'
 import webpack from 'webpack'
 import fs from 'fs'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
-import s3Opts from './s3_options'
-import S3WebpackPlugin from '../src/s3_plugin'
+import ossOpts from './oss_options'
+import OSSWebpackPlugin from '../src/oss_plugin'
 import {assert} from 'chai'
 import {spawnSync} from 'child_process'
 
-const S3_URL = `https://s3-${s3Opts.AWS_REGION}.amazonaws.com/${s3Opts.AWS_BUCKET}/`,
-      S3_ERROR_REGEX = /<Error>/,
-      OUTPUT_FILE_NAME = 's3Test',
+const OSS_URL = `http://${ossOpts.OSS_BUCKET}.${ossOpts.OSS_REGION}.aliyuncs.com/`,
+      OSS_ERROR_REGEX = /<Error>/,
+      OUTPUT_FILE_NAME = 'ossTest',
       OUTPUT_PATH = path.resolve(__dirname, '.tmp'),
       ENTRY_PATH = path.resolve(__dirname, 'fixtures/index.js'),
-      createBuildFailError = errors => `Webpack Build Failed ${errors}`
+      createBuildFailError = errors => `Webpack Build Failed ${errors}`;
 
 var deleteFolderRecursive = function(path) {
   if (fs.existsSync(path)) {
     fs.readdirSync(path).forEach(function(file) {
-      var curPath = `${path}/${file}`
+      var curPath = `${path}/${file}`;
 
       if (fs.lstatSync(curPath).isDirectory()) { // recurse
         deleteFolderRecursive(curPath)
       } else { // delete file
         fs.unlinkSync(curPath)
       }
-    })
+    });
 
     fs.rmdirSync(path)
   }
-}
+};
 
-var generateS3Config = function(config) {
+var generateOSSConfig = function(config) {
   var params = _.merge({}, {
-    s3Options: s3Opts.s3Options,
-    s3UploadOptions: s3Opts.s3UploadOptions
-  }, config)
+    ossOptions: ossOpts.ossOptions,
+    ossUploadOptions: ossOpts.ossUploadOptions
+  }, config);
 
-  return new S3WebpackPlugin(params)
-}
+  return new OSSWebpackPlugin(params)
+};
 
 export default {
   OUTPUT_FILE_NAME,
   OUTPUT_PATH,
-  S3_URL,
-  S3_ERROR_REGEX,
+  OSS_URL,
+  OSS_ERROR_REGEX,
 
   fetch(url) {
     return new Promise(function(resolve, reject) {
-      https.get(url, function(response) {
-        var body = ''
+      http.get(url, function(response) {
+        var body = '';
 
-        response.on('data', data => body += data)
-        response.on('end', () => resolve(body))
-        response.on('error', reject)
+        response.on('data', data => body += data);
+        response.on('end', () => resolve(body));
+        response.on('error', reject);
       })
     })
   },
@@ -67,21 +67,21 @@ export default {
     spawnSync('mkdir', ['-p', pathToFolder], {stdio: 'inherit'})
   },
 
-  testForFailFromStatsOrGetS3Files({errors, stats}) {
+  testForFailFromStatsOrGetOSSFiles({errors, stats}) {
     if (errors)
       return assert.fail([], errors, createBuildFailError(errors))
 
-    return this.getBuildFilesFromS3(this.getFilesFromStats(stats))
+    return this.getBuildFilesFromOSS(this.getFilesFromStats(stats))
   },
 
-  testForFailFromDirectoryOrGetS3Files(directory) {
+  testForFailFromDirectoryOrGetOSSFiles(directory) {
     return ({errors}) => {
       var basePath = this.addSlashToPath(`${directory}`)
 
       if (errors)
         return assert.fail([], errors, createBuildFailError(errors))
       else
-        return this.getBuildFilesFromS3(this.getFilesFromDirectory(directory, basePath))
+        return this.getBuildFilesFromOSS(this.getFilesFromDirectory(directory, basePath))
     }
   },
 
@@ -105,12 +105,12 @@ export default {
     return {fullPath: newFileName, fileName}
   },
 
-  createWebpackConfig({config, s3Config} = {}) {
+  createWebpackConfig({config, ossConfig} = {}) {
     return _.extend({
       entry: ENTRY_PATH,
       plugins: [
         new HtmlWebpackPlugin(),
-        generateS3Config(s3Config)
+        generateOSSConfig(ossConfig)
       ],
       output: {
         path: OUTPUT_PATH,
@@ -155,17 +155,17 @@ export default {
     return _.map(stats.toJson().assets, 'name')
   },
 
-  getBuildFilesFromS3(files) {
+  getBuildFilesFromOSS(files) {
     var fetchFiles = files
       .filter(file => !/.*\.html$/.test(file))
 
-    return Promise.all(fetchFiles.map(file => this.fetch(S3_URL + file)))
+    return Promise.all(fetchFiles.map(file => this.fetch(OSS_URL + file)))
       .then(nFiles => nFiles.map((file, i) => {
         var fetchFile = fetchFiles[i]
 
         return {
           name: fetchFile,
-          s3Url: S3_URL + fetchFile,
+          ossUrl: OSS_URL + fetchFile,
           actual: file,
           expected: this.readFileFromOutputDir(fetchFile)
         }
@@ -185,16 +185,12 @@ export default {
 
   assertFileMatches(files) {
     var errors = _(files)
-      .map(({expected, actual, name, s3Url}) => {
-        return assert.equal(actual, expected, `File: ${name} URL: ${s3Url} - NO MATCH`)
+      .map(({expected, actual, name, ossUrl}) => {
+        return assert.equal(actual, expected, `File: ${name} URL: ${ossUrl} - NO MATCH`)
       })
       .compact()
       .value()
 
     return Promise.all(_.some(errors) ? errors : files)
   },
-
-  getCloudfrontInvalidateOptions() {
-    return s3Opts.cloudfrontInvalidateOptions
-  }
 }

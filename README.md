@@ -1,16 +1,16 @@
 
-S3 Plugin
-===
+OSS Plugin
+==========
 [![Travis Badge](https://travis-ci.org/MikaAK/s3-plugin-webpack.svg?branch=master)](https://travis-ci.org/MikaAK/s3-plugin-webpack)
 [![Code Climate](https://codeclimate.com/github/MikaAK/s3-plugin-webpack/badges/gpa.svg)](https://codeclimate.com/github/MikaAK/s3-plugin-webpack)
 
-This plugin will upload all built assets to s3
+This plugin will upload all built assets to OSS
 
 
 ### Install Instructions
 
 ```bash
-$ npm i webpack-s3-plugin
+$ npm i webpack-oss-plugin
 ```
 Note: This plugin needs NodeJS > 0.12.0
 
@@ -21,27 +21,24 @@ Note: This plugin needs NodeJS > 0.12.0
 
 ##### Require `webpack-s3-plugin`
 ```javascript
-var S3Plugin = require('webpack-s3-plugin')
+var OSSPlugin = require('webpack-oss-plugin')
 ```
 
 ##### With exclude
 ```javascript
 var config = {
   plugins: [
-    new S3Plugin({
+    new OSSPlugin({
       // Exclude uploading of html
       exclude: /.*\.html$/,
-      // s3Options are required
-      s3Options: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        region: 'us-west-1'
+      // ossOptions are required
+      ossOptions: {
+        accessKeyId: process.env.OSS_ACCESS_KEY,
+        accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+        region: 'oss-cn-shanghai',
+        bucket: process.env.OSS_BUCKET,
       },
-      s3UploadOptions: {
-        Bucket: 'MyBucket'
-      },
-      cdnizerOptions: {
-        defaultCDNBase: 'http://asdf.ca'
+      ossUploadOptions: {
       }
     })
   ]
@@ -55,13 +52,14 @@ var config = {
     new S3Plugin({
       // Only upload css and js
       include: /.*\.(css|js)/,
-      // s3Options are required
-      s3Options: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      // ossOptions are required
+      ossOptions: {
+        accessKeyId: process.env.OSS_ACCESS_KEY,
+        accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+        region: 'oss-cn-shanghai',
+        bucket: process.env.OSS_BUCKET,
       },
-      s3UploadOptions: {
-        Bucket: 'MyBucket'
+      ossUploadOptions: {
       }
     })
   ]
@@ -86,14 +84,15 @@ var addSha = function() {
 
 var config = {
   plugins: [
-    new S3Plugin({
-      s3Options: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    new OSSPlugin({
+      ossOptions: {
+        accessKeyId: process.env.OSS_ACCESS_KEY,
+        accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+        region: 'oss-cn-shanghai',
+        bucket: process.env.OSS_BUCKET,
       },
-      s3UploadOptions: {
-        Bucket: 'MyBucket'
-      },
+      ossUploadOptions: {
+      }
       basePathTransform: addSha
     })
   ]
@@ -103,49 +102,23 @@ var config = {
 // Will output to /${mySha}/${fileName}
 ```
 
-##### With CloudFront invalidation
-```javascript
-var config = {
-  plugins: [
-    new S3Plugin({
-      s3Options: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-      s3UploadOptions: {
-        Bucket: 'MyBucket'
-      },
-      cloudfrontInvalidateOptions: {
-        DistributionId: process.env.CLOUDFRONT_DISTRIBUTION_ID,
-        Items: ["/*"]
-      }
-    })
-  ]
-}
-```
-
 ##### With Dynamic Upload Options
 ```javascript
 var config = {
   plugins: [
-    new S3Plugin({
-      s3Options: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    new OSSPlugin({
+      ossOptions: {
+        accessKeyId: process.env.OSS_ACCESS_KEY,
+        accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+        region: 'oss-cn-shanghai',
+        bucket: process.env.OSS_BUCKET,
       },
-      s3UploadOptions: {
-        Bucket: 'MyBucket',
-        ContentEncoding(fileName) {
-          if (/\.gz/.test(fileName))
-            return 'gzip'
+      ossUploadOptions: {
+        headers(fileName) {
+          return {
+            'Cache-Control': 'max-age=31536000'
+          };
         },
-        
-        ContentType(fileName) {
-          if (/\.js/.test(fileName))
-            return 'application/javascript'
-          else
-            return 'text/plain'
-        }
       }
     })
   ]
@@ -156,16 +129,10 @@ var config = {
 
 - `exclude`: Regex to match for excluded content
 - `include`: Regex to match for included content
-- `s3Options`: Provide keys for upload extention of [s3Config](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Config.html#constructor-property)
-- `s3UploadOptions`: Provide upload options [putObject](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property )
-- `basePath`: Provide the namespace where upload files on S3
-- `directory`: Provide a directory to upload (if not supplied will upload js/css from compilation)
-- `htmlFiles`: Html files to cdnize (defaults to all in output directory)
-- `cdnizerCss`: Config for css cdnizer check below
-- `noCdnizer`: Disable cdnizer (defaults true if no cdnizerOptions passed)
-- `cdnizerOptions`: options to pass to [cdnizer](https://www.npmjs.com/package/cdnizer)
+- `ossOptions`: Provide keys for upload extention of [ossConfig](https://github.com/ali-sdk/ali-oss#ossoptions)
+- `ossUploadOptions`: Provide upload options [put](https://github.com/ali-sdk/ali-oss#putname-file-options)
+- `basePath`: Provide the namespace where upload files on OSS
 - `basePathTransform`: transform the base path to add a folder name. Can return a promise or a string
-- `progress`: Enable progress bar (defaults true)
 
 ### Contributing
 All contributions are welcome. Please make a pull request and make sure things still pass after running `npm run test`
@@ -176,7 +143,5 @@ For tests you will need to either have the environment variables set or setup a 
 - `npm run test` - Run test suit (You must have the .env file setup)
 - `npm run build` - Run build
 
-### Thanks
-
-- Thanks to [@Omer](https://github.com/Omer) for fixing credentials from `~/.aws/credentials`
-- Thanks to [@lostjimmy](https://github.com/lostjimmy) for pointing out `path.sep` for Windows compatibility
+#### Thanks
+Thanks to [s3-plugin-webpack](https://github.com/MikaAK/s3-plugin-webpack)

@@ -1,8 +1,8 @@
 {
-  "name": "webpack-s3-plugin",
+  "name": "webpack-oss-plugin",
   "version": "0.9.0",
-  "description": "Uploads compiled assets to s3 after build",
-  "main": "dist/s3_plugin.js",
+  "description": "Uploads compiled assets to oss after build",
+  "main": "dist/oss_plugin.js",
   "scripts": {
     "build": "webpack",
     "test": "NODE_ENV='test' mocha -t 10000 --compilers js:babel-register",
@@ -14,28 +14,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:MikaAK/s3-plugin-webpack.git"
+    "url": "git@github.com:waijule/webpack-oss-plugin.git"
   },
   "keywords": [
-    "s3",
+    "oss",
     "webpack",
     "node",
     "upload",
     "production"
   ],
-  "author": "Mika Kalathil",
+  "author": "Jack Feng",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MikaAK/s3-plugin-webpack/issues"
+    "url": "https://github.com/waijule/webpack-oss-plugin/issues"
   },
-  "homepage": "https://github.com/MikaAK/s3-plugin-webpack",
+  "homepage": "https://github.com/waijule/webpack-oss-plugin",
   "dependencies": {
-    "aws-sdk": "~2.4.1",
-    "cdnizer": "^1.1.5",
+    "ali-oss": "^4.4.4",
+    "co": "^4.6.0",
     "lodash": "^4.13.0",
-    "progress": "^1.1.8",
-    "recursive-readdir": "^2.0.0",
-    "s3": "^4.4.0"
+    "recursive-readdir": "^2.0.0"
   },
   "devDependencies": {
     "babel-loader": "^6.2.4",

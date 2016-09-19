@@ -9,14 +9,14 @@ const CONTEXT = path.resolve(__dirname),
 
 var config = {
   context: CONTEXT,
-  entry: './src/s3_plugin.js',
+  entry: './src/oss_plugin.js',
   target: 'node',
 
   output: {
     path: createPath('dist'),
-    library: 'webpack-s3-plugin',
+    library: 'webpack-oss-plugin',
     libraryTarget: 'umd',
-    filename: 's3_plugin.js'
+    filename: 'oss_plugin.js'
   },
 
   plugins: [
@@ -41,12 +41,10 @@ var config = {
   },
 
   externals: NODE_ENV === 'test' ? [] : [
-    'cdnizer',
-    'aws-sdk',
     'lodash',
-    's3',
+    'ali-oss',
     'recursive-readdir',
-    'progress'
+    'co',
   ],
 
   resolve: {
