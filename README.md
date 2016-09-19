@@ -1,8 +1,7 @@
 
 OSS Plugin
 ==========
-[![Travis Badge](https://travis-ci.org/MikaAK/s3-plugin-webpack.svg?branch=master)](https://travis-ci.org/MikaAK/s3-plugin-webpack)
-[![Code Climate](https://codeclimate.com/github/MikaAK/s3-plugin-webpack/badges/gpa.svg)](https://codeclimate.com/github/MikaAK/s3-plugin-webpack)
+[![Travis Badge](https://travis-ci.org/waijule/webpack-oss-plugin.svg?branch=master)](https://travis-ci.org/waijule/webpack-oss-plugin)
 
 This plugin will upload all built assets to OSS
 
