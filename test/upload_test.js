@@ -1,13 +1,15 @@
-import _ from 'lodash'
-import path from 'path'
-import OSSOpts from './oss_options'
-import testHelpers from './upload_test_helpers'
-import {assert} from 'chai'
-import * as sinon from 'sinon'
+import _ from 'lodash';
+import fs from 'fs';
+import path from 'path';
+import OSSOpts from './oss_options';
+import testHelpers from './upload_test_helpers';
+import {assert} from 'chai';
+import * as sinon from 'sinon';
 
 const CONTEXT = __dirname;
 
 const assertFileMatches = testHelpers.assertFileMatches.bind(testHelpers),
+      assertFileNotMatches = testHelpers.assertFileNotMatches.bind(testHelpers),
       testForFailFromStatsOrGetOSSFiles = testHelpers.testForFailFromStatsOrGetOSSFiles.bind(testHelpers),
       testForErrorsOrGetFileNames = testHelpers.testForErrorsOrGetFileNames.bind(testHelpers);
 
@@ -20,6 +22,7 @@ describe('OSS Webpack Upload', function() {
   describe('With directory', function() {
     var ossConfig,
         config,
+        randomFile,
         testOSSUpload = testHelpers.testForFailFromDirectoryOrGetOSSFiles(testHelpers.OUTPUT_PATH);
 
     beforeEach(function() {
@@ -27,13 +30,42 @@ describe('OSS Webpack Upload', function() {
       config = testHelpers.createWebpackConfig({ossConfig});
 
       testHelpers.createOutputPath();
-      testHelpers.createRandomFile(testHelpers.OUTPUT_PATH)
+      randomFile = testHelpers.createRandomFile(testHelpers.OUTPUT_PATH)
     });
 
     it('uploads entire directory to oss', function() {
-      return testHelpers.runWebpackConfig({config, ossConfig})
+      return testHelpers.runWebpackConfig({config})
         .then(testHelpers.testForFailFromDirectoryOrGetOSSFiles(testHelpers.OUTPUT_PATH))
         .then(assertFileMatches)
+    });
+
+    it('overwrite all files', function() {
+      return testHelpers.runWebpackConfig({config})
+        .then(testHelpers.testForFailFromDirectoryOrGetOSSFiles(testHelpers.OUTPUT_PATH))
+        .then(assertFileMatches)
+        .then(() => {
+          fs.writeFileSync(randomFile.fullPath, `This is a new overwrite file - ${randomFile.fileName}`);
+          return testHelpers.runWebpackConfig({config})
+            .then(testHelpers.testForFailFromDirectoryOrGetOSSFiles(testHelpers.OUTPUT_PATH))
+            .then(assertFileMatches)
+        })
+    });
+
+    it('not overwrite random files', function() {
+      return testHelpers.runWebpackConfig({config})
+        .then(testHelpers.testForFailFromDirectoryOrGetOSSFiles(testHelpers.OUTPUT_PATH))
+        .then(assertFileMatches)
+        .then(() => {
+          fs.writeFileSync(randomFile.fullPath, `This is a new overwrite file - ${randomFile.fileName}`);
+          config = testHelpers.createWebpackConfig({
+            ossConfig: _.merge({ overwrite: false }, ossConfig)
+          });
+          return testHelpers.runWebpackConfig({config})
+            .then(() => {
+              return testHelpers.getBuildFilesFromOSS([randomFile.fileName]);
+            })
+            .then(assertFileNotMatches)
+        })
     });
 
     it('uploads directory recursivly to oss', function() {
@@ -50,7 +82,7 @@ describe('OSS Webpack Upload', function() {
       testHelpers.createRandomFile(createPath('deeply', 'nested', 'folder2'));
       testHelpers.createRandomFile(createPath('deeply', 'nested2'));
 
-      return testHelpers.runWebpackConfig({config, ossConfig})
+      return testHelpers.runWebpackConfig({config})
         .then(testOSSUpload)
         .then(assertFileMatches);
     })

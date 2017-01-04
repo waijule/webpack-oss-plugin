@@ -9,7 +9,7 @@ const CONTEXT = path.resolve(__dirname),
 
 var config = {
   context: CONTEXT,
-  entry: './src/oss_plugin.js',
+  entry: ['babel-polyfill', './src/oss_plugin.js'],
   target: 'node',
 
   output: {

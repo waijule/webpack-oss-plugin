@@ -193,4 +193,15 @@ export default {
 
     return Promise.all(_.some(errors) ? errors : files)
   },
+
+  assertFileNotMatches(files) {
+    var errors = _(files)
+      .map(({expected, actual, name, ossUrl}) => {
+        return assert.notEqual(actual, expected, `File: ${name} URL: ${ossUrl} - MATCHES`)
+      })
+      .compact()
+      .value()
+
+    return Promise.all(_.some(errors) ? errors : files)
+  },
 }

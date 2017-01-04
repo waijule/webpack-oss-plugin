@@ -16,9 +16,7 @@ Note: This plugin needs NodeJS > 0.12.0
 ### Usage Instructions
 > I notice a lot of people are setting the directory option when the files are part of their build. Please don't set   directory if your uploading your build. Using the directory option reads the files after compilation to upload instead of from the build process. 
 
-> You can also use a [credentials file](https://blogs.aws.amazon.com/security/post/Tx3D6U6WSFGOK2H/A-New-and-Standardized-Way-to-Manage-Credentials-in-the-AWS-SDKs) from AWS.
-
-##### Require `webpack-s3-plugin`
+##### Require `webpack-oss-plugin`
 ```javascript
 var OSSPlugin = require('webpack-oss-plugin')
 ```
@@ -48,7 +46,7 @@ var config = {
 ```javascript
 var config = {
   plugins: [
-    new S3Plugin({
+    new OSSPlugin({
       // Only upload css and js
       include: /.*\.(css|js)/,
       // ossOptions are required
@@ -128,6 +126,7 @@ var config = {
 
 - `exclude`: Regex to match for excluded content
 - `include`: Regex to match for included content
+- `overwrite`: false will skip uploading if file already exists in oss. Default true
 - `ossOptions`: Provide keys for upload extention of [ossConfig](https://github.com/ali-sdk/ali-oss#ossoptions)
 - `ossUploadOptions`: Provide upload options [put](https://github.com/ali-sdk/ali-oss#putname-file-options)
 - `basePath`: Provide the namespace where upload files on OSS
