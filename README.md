@@ -17,6 +17,8 @@ Note: This plugin needs NodeJS > 0.12.0
 > I notice a lot of people are setting the directory option when the files are part of their build. Please don't set   directory if your uploading your build. Using the directory option reads the files after compilation to upload instead of from the build process. 
 
 ##### Require `webpack-oss-plugin`
+You will need babel-polyfill to use this plugin
+
 ```javascript
 var OSSPlugin = require('webpack-oss-plugin')
 ```
