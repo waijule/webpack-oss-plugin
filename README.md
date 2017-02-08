@@ -14,7 +14,7 @@ $ npm i webpack-oss-plugin
 Note: This plugin needs NodeJS > 0.12.0
 
 ### Usage Instructions
-> I notice a lot of people are setting the directory option when the files are part of their build. Please don't set   directory if your uploading your build. Using the directory option reads the files after compilation to upload instead of from the build process. 
+> I notice a lot of people are setting the directory option when the files are part of their build. Please don't set   directory if your uploading your build. Using the directory option reads the files after compilation to upload instead of from the build process.
 
 ##### Require `webpack-oss-plugin`
 You will need babel-polyfill to use this plugin
@@ -77,7 +77,7 @@ var addSha = function() {
       else
        // resolve to first 5 characters of sha
        resolve(output.slice(0, 5))
-    }) 
+    })
   })
 }
 
@@ -142,6 +142,12 @@ For tests you will need to either have the environment variables set or setup a 
 ###### *WARNING*: The test suit generates random files for certain checks. Ensure you delete files leftover on your Bucket.
 - `npm run test` - Run test suit (You must have the .env file setup)
 - `npm run build` - Run build
+
+#### Publish
+- `npm run prep:patch` - Prepare for patch release
+- `npm run prep:minor` - Prepare for minor release
+- `npm run prep:major` - Prepare for major release
+Push a tag will automatically publish a version to NPM by travis
 
 #### Thanks
 Thanks to [s3-plugin-webpack](https://github.com/MikaAK/s3-plugin-webpack)

@@ -7,6 +7,7 @@ const {
   OSS_REGION,
   OSS_ACCESS_KEY,
   OSS_ACCESS_KEY_SECRET,
+  OSS_UPLOAD_TIMEOUT = 10000,
 } = process.env;
 
 export default {
@@ -23,5 +24,6 @@ export default {
   },
 
   ossUploadOptions: {
+    timeout: OSS_UPLOAD_TIMEOUT
   },
 }
