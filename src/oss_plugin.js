@@ -178,6 +178,7 @@ module.exports = class OSSPlugin {
               }
             }, (e) => {
               console.error(`${file.path} failed to upload`, e)
+              return Promise.reject(e)
             })
         }))
       })

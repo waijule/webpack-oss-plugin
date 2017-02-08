@@ -309,6 +309,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	          }, function (e) {
 	            console.error(file.path + ' failed to upload', e);
+	            return Promise.reject(e);
 	          });
 	        }));
 	      });

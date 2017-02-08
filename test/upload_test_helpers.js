@@ -67,6 +67,14 @@ export default {
     spawnSync('mkdir', ['-p', pathToFolder], {stdio: 'inherit'})
   },
 
+  testForFailBuilds({errors, stats}) {
+    if (!errors) {
+      return assert.fail([], null, 'Build should fail')
+    }
+
+    return Promise.resolve({ errors, stats })
+  },
+
   testForFailFromStatsOrGetOSSFiles({errors, stats}) {
     if (errors)
       return assert.fail([], errors, createBuildFailError(errors))

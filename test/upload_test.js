@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
-import OSSOpts from './oss_options';
-import testHelpers from './upload_test_helpers';
 import {assert} from 'chai';
 import * as sinon from 'sinon';
+import ossOpts from './oss_options'
+import testHelpers from './upload_test_helpers';
 
 const CONTEXT = __dirname;
 
@@ -37,6 +37,18 @@ describe('OSS Webpack Upload', function() {
       return testHelpers.runWebpackConfig({config})
         .then(testHelpers.testForFailFromDirectoryOrGetOSSFiles(testHelpers.OUTPUT_PATH))
         .then(assertFileMatches)
+    });
+
+    it('test upload fail will cause webpack build fail', function() {
+      return testHelpers.runWebpackConfig({
+        config: testHelpers.createWebpackConfig({
+          ossConfig: Object.assign({}, ossConfig, {
+            ossOptions: Object.assign({}, ossOpts.ossOptions, {
+                accessKeySecret: 'WRONG_KEY_SECRET'
+            }),
+          }),
+        })
+      }).then(testHelpers.testForFailBuilds)
     });
 
     it('overwrite all files', function() {
