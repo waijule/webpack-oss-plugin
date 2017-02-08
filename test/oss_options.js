@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import _ from 'lodash';
 
 dotenv.load();
 
@@ -24,6 +25,8 @@ export default {
   },
 
   ossUploadOptions: {
-    timeout: OSS_UPLOAD_TIMEOUT
+    timeout() {
+      return _.toNumber(OSS_UPLOAD_TIMEOUT)
+    }
   },
 }
