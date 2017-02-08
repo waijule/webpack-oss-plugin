@@ -1,6 +1,6 @@
 {
   "name": "webpack-oss-plugin",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Uploads compiled assets to oss after build",
   "main": "dist/oss_plugin.js",
   "scripts": {
